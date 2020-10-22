@@ -1,5 +1,4 @@
-ARG BASETAG=alpine
-FROM postgres:$BASETAG
+FROM postgres:alpine
 
 RUN set -x \
 	&& apk update && apk add python3 bash \
