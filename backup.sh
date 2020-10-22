@@ -100,3 +100,7 @@ for DB in ${POSTGRES_DBS}; do
 done
 
 echo "SQL backup created successfully"
+
+echo "Upload backup to S3"
+python3 ./upload.py -d "${DFILE}" -w "${WFILE}" -m "${MFILE}"
+echo "Uploaded backup to S3 successfully."
