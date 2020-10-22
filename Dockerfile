@@ -1,12 +1,12 @@
 FROM postgres:alpine
 
 RUN set -x \
-	&& apk update && apk add python3 bash \
-	&& ln -sf python3 /usr/bin/python
-
-RUN python -m ensurepip --upgrade \
-  && pip3 install --no-cache --upgrade pip setuptools \
-  && pip3 install boto3 pytz
+	&& apk update && apk add python3 \
+	&& ln -sf python3 /usr/bin/python \
+	&& python -m ensurepip --upgrade \
+    && pip3 install --no-cache --upgrade pip setuptools \
+    && pip3 install boto3 pytz \
+    && rm -rf /tmp/* /var/tmp/* /var/cache/apk/* /var/cache/distfiles/*
 
 ENV POSTGRES_DB="**None**" \
     POSTGRES_DB_FILE="**None**" \
