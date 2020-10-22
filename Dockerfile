@@ -1,14 +1,19 @@
-ARG BASETAG=latest
+ARG BASETAG=alpine
 FROM postgres:$BASETAG
 
 ARG GOCRONVER=v0.0.9
 ARG TARGETOS
 ARG TARGETARCH
 RUN set -x \
-	&& apt-get update && apt-get install -y --no-install-recommends ca-certificates curl && rm -rf /var/lib/apt/lists/* \
-	&& curl -L https://github.com/prodrigestivill/go-cron/releases/download/$GOCRONVER/go-cron-$TARGETOS-$TARGETARCH.gz | zcat > /usr/local/bin/go-cron \
+	&& apk update && apk add ca-certificates curl python3 \
+  && ln -sf python3 /usr/bin/python \
+	&& curl -L https://github.com/prodrigestivill/go-cron/releases/download/$GOCRONVER/go-cron-$TARGETOS-$TARGETARCH-static.gz | zcat > /usr/local/bin/go-cron \
 	&& chmod a+x /usr/local/bin/go-cron \
-	&& apt-get purge -y --auto-remove ca-certificates && apt-get clean
+	&& apk del ca-certificates
+
+RUN python -m ensurepip --upgrade \
+  && pip3 install --no-cache --upgrade pip setuptools \
+  && pip3 install boto3 pytz
 
 ENV POSTGRES_DB="**None**" \
     POSTGRES_DB_FILE="**None**" \
@@ -29,7 +34,8 @@ ENV POSTGRES_DB="**None**" \
     BACKUP_KEEP_MONTHS=6 \
     HEALTHCHECK_PORT=8080
 
-COPY backup.sh /backup.sh
+COPY ./scripts/backup.sh /backup.sh
+COPY ./scripts/upload.py /upload.py
 
 VOLUME /backups
 
