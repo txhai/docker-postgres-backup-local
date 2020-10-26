@@ -1,7 +1,7 @@
 FROM postgres:alpine
 
 RUN set -x \
-	&& apk update && apk add python3 \
+	&& apk update && apk add python3 curl \
 	&& ln -sf python3 /usr/bin/python \
 	&& python -m ensurepip --upgrade \
     && pip3 install --no-cache --upgrade pip setuptools \
@@ -33,10 +33,8 @@ COPY ./scripts/upload.py /upload.py
 
 RUN chmod a+x /usr/local/bin/go-cron
 
-VOLUME /backups
-
 ENTRYPOINT ["/bin/sh", "-c"]
 CMD ["exec /usr/local/bin/go-cron -s \"$SCHEDULE\" -p \"$HEALTHCHECK_PORT\" -- /backup.sh"]
 
-HEALTHCHECK --interval=5m --timeout=3s \
+HEALTHCHECK --interval=30s --timeout=3s \
   CMD curl -f "http://localhost:$HEALTHCHECK_PORT/" || exit 1
